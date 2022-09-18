@@ -3,11 +3,12 @@ package tech.jakubvolak.dat250project.model;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
 @Entity
-public class Person {
+public class Person implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

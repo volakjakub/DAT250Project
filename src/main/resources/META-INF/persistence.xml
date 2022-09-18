@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<persistence xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0" xmlns="http://java.sun.com/xml/ns/persistence">
+    <persistence-unit name="jakubvolak" transaction-type="RESOURCE_LOCAL">
+
+        <class>tech.jakubvolak.dat250project.model.Device</class>
+        <class>tech.jakubvolak.dat250project.model.Person</class>
+        <class>tech.jakubvolak.dat250project.model.Poll</class>
+        <class>tech.jakubvolak.dat250project.model.DevicePoll</class>
+        <class>tech.jakubvolak.dat250project.model.Vote</class>
+
+        <properties>
+            <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+            <property name="javax.persistence.jdbc.url"
+                      value="jdbc:postgresql://localhost:5432/jakubvolak;create=false"/>
+            <!--
+            <property name="javax.persistence.jdbc.user" value="test"/>
+            <property name="javax.persistence.jdbc.password" value="test"/>
+
+            <property name="eclipselink.ddl-generation" value="create-tables"/>
+            Or <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/> -->
+            <property name="eclipselink.ddl-generation.output-mode" value="database"/> <!-- value = "both" enables DDL logging -->
+        </properties>
+
+    </persistence-unit>
+</persistence>

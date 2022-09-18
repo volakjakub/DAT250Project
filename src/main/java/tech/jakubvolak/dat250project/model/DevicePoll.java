@@ -3,10 +3,11 @@ package tech.jakubvolak.dat250project.model;
 import tech.jakubvolak.dat250project.model.key.DevicePollKey;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @IdClass(DevicePollKey.class)
-public class DevicePoll {
+public class DevicePoll implements Serializable {
     @Id
     @OneToOne
     @JoinColumn(name = "device_id", insertable = false, updatable = false)

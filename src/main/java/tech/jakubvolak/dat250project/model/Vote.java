@@ -3,9 +3,10 @@ package tech.jakubvolak.dat250project.model;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
-public class Vote {
+public class Vote implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
