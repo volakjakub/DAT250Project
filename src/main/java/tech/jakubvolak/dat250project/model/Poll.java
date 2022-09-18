@@ -39,6 +39,10 @@ public class Poll {
         this.author = author;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public String getQuestion() {
         return question;
     }
@@ -69,6 +73,14 @@ public class Poll {
 
     public void setStatus(Boolean status) {
         this.status = status;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public Person getAuthor() {
+        return author;
     }
 
     @Nullable

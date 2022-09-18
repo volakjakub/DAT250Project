@@ -28,6 +28,10 @@ public class Device {
         this.name = name;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public String getAddress() {
         return address;
     }
