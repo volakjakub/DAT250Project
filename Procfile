@@ -1,1 +1,1 @@
-web: java -jar target/DAT250Project.jar
+web: java -jar target/DAT250Project-0.0.1-SNAPSHOT.jar
