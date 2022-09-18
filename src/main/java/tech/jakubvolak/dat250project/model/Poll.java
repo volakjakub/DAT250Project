@@ -20,10 +20,6 @@ public class Poll {
     @ManyToOne
     @JoinColumn(name = "person_id", insertable = false, updatable = false)
     private Person author;
-    @OneToOne
-    @JoinColumn(name = "poll_id")
-    @Nullable
-    private DevicePoll devicePoll;
     @OneToMany
     @JoinColumn(name = "poll_id")
     private final Collection<Vote> votes = new ArrayList<>();
@@ -81,11 +77,6 @@ public class Poll {
 
     public Person getAuthor() {
         return author;
-    }
-
-    @Nullable
-    public DevicePoll getDevicePoll() {
-        return devicePoll;
     }
 
     public Collection<Vote> getVotes() {

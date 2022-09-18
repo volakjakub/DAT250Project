@@ -13,10 +13,6 @@ public class Device {
     private Long id;
     private String address;
     private String name;
-    @OneToOne
-    @JoinColumn(name = "device_id")
-    @Nullable
-    private DevicePoll devicePoll;
     @OneToMany
     @JoinColumn(name = "device_id")
     private final Collection<Vote> votes = new ArrayList<>();
@@ -46,11 +42,6 @@ public class Device {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    @Nullable
-    public DevicePoll getDevicePoll() {
-        return devicePoll;
     }
 
     public Collection<Vote> getVotes() {
