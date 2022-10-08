@@ -1,4 +1,4 @@
-package tech.jakubvolak.dat250project.config;
+package tech.dat250project.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import tech.jakubvolak.dat250project.security.CustomUserDetailsService;
+import tech.dat250project.security.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity

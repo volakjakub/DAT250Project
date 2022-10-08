@@ -1,4 +1,4 @@
-package tech.jakubvolak.dat250project.controller;
+package tech.dat250project.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import tech.jakubvolak.dat250project.model.Person;
+import tech.dat250project.model.Person;
 
 @RestController
 public class AuthController {
