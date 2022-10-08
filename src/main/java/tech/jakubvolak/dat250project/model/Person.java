@@ -24,12 +24,6 @@ public class Person implements Serializable {
 
     public Person() {}
 
-    public Person(String username, String email, String password) {
-        this.username = username;
-        this.email = email;
-        this.password = DigestUtils.sha256Hex(password);
-    }
-
     public String getUsername() {
         return username;
     }
