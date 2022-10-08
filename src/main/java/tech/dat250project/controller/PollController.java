@@ -1,9 +1,9 @@
-package tech.jakubvolak.dat250project.controller;
+package tech.dat250project.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import tech.jakubvolak.dat250project.model.Poll;
-import tech.jakubvolak.dat250project.repository.PollRepository;
+import tech.dat250project.model.Poll;
+import tech.dat250project.repository.PollRepository;
 
 import java.util.List;
 

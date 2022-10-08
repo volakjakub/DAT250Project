@@ -1,8 +1,8 @@
-package tech.jakubvolak.dat250project.repository;
+package tech.dat250project.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import tech.jakubvolak.dat250project.model.DevicePoll;
-import tech.jakubvolak.dat250project.model.key.DevicePollKey;
+import tech.dat250project.model.DevicePoll;
+import tech.dat250project.model.key.DevicePollKey;
 
 public interface DevicePollRepository extends CrudRepository<DevicePoll, DevicePollKey> {
     DevicePoll findByPollId(long id);

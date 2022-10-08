@@ -1,6 +1,6 @@
-package tech.jakubvolak.dat250project.model;
+package tech.dat250project.model;
 
-import tech.jakubvolak.dat250project.model.key.DevicePollKey;
+import tech.dat250project.model.key.DevicePollKey;
 
 import javax.persistence.*;
 import java.io.Serializable;

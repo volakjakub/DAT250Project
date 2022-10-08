@@ -1,7 +1,7 @@
-package tech.jakubvolak.dat250project.repository;
+package tech.dat250project.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import tech.jakubvolak.dat250project.model.Vote;
+import tech.dat250project.model.Vote;
 
 import java.util.List;
 

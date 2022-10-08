@@ -1,7 +1,7 @@
-package tech.jakubvolak.dat250project.model.key;
+package tech.dat250project.model.key;
 
-import tech.jakubvolak.dat250project.model.Device;
-import tech.jakubvolak.dat250project.model.Poll;
+import tech.dat250project.model.Device;
+import tech.dat250project.model.Poll;
 
 import java.io.Serializable;
 
