@@ -1,6 +1,5 @@
 package tech.jakubvolak.dat250project.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
@@ -15,16 +14,13 @@ public class Vote implements Serializable {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "person_id", insertable = false, updatable = false)
     @Nullable
-    @JsonBackReference
     private Person person;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "device_id", insertable = false, updatable = false)
     @Nullable
-    @JsonBackReference
     private Device device;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "poll_id", insertable = false, updatable = false)
-    @JsonBackReference
     private Poll poll;
 
     public Vote() {}

@@ -1,7 +1,5 @@
 package tech.jakubvolak.dat250project.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -16,7 +14,6 @@ public class Device implements Serializable {
     private String name;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "device_id")
-    @JsonManagedReference
     private final Collection<Vote> votes = new ArrayList<>();
 
     public Device() {}

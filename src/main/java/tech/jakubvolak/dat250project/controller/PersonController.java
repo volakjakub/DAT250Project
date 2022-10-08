@@ -1,7 +1,7 @@
 package tech.jakubvolak.dat250project.controller;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import tech.jakubvolak.dat250project.model.Person;
 import tech.jakubvolak.dat250project.repository.PersonRepository;
@@ -13,6 +13,8 @@ import java.util.Optional;
 public class PersonController {
     @Autowired
     private PersonRepository personRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @GetMapping("/person")
     List<Person> all() {
@@ -25,9 +27,9 @@ public class PersonController {
         return person.orElse(null);
     }
 
-    @PostMapping("/person")
+    @PostMapping("/register")
     Person create(@RequestBody Person person) {
-        person.setPassword(DigestUtils.sha256Hex(person.getPassword()));
+        person.setPassword(passwordEncoder.encode(person.getPassword()));
         return personRepository.save(person);
     }
 
@@ -37,7 +39,7 @@ public class PersonController {
                 .map(person -> {
                     person.setUsername(newPerson.getUsername());
                     person.setEmail(newPerson.getEmail());
-                    person.setPassword(DigestUtils.sha256Hex(newPerson.getPassword()));
+                    person.setPassword(passwordEncoder.encode(newPerson.getPassword()));
                     return personRepository.save(person);
                 })
                 .orElseGet(() -> personRepository.save(newPerson));

@@ -1,7 +1,5 @@
 package tech.jakubvolak.dat250project.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -15,16 +13,26 @@ public class Person implements Serializable {
     private String username;
     private String email;
     private String password;
+
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "person_id")
-    @JsonManagedReference
     private final Collection<Poll> polls = new ArrayList<>();
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "person_id")
-    @JsonManagedReference
     private final Collection<Vote> votes = new ArrayList<>();
 
     public Person() {}
+
+    public Person(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
+
+    public Person(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 
     public String getUsername() {
         return username;

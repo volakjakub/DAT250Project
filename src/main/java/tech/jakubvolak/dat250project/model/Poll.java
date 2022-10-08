@@ -1,7 +1,6 @@
 package tech.jakubvolak.dat250project.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -25,7 +24,6 @@ public class Poll implements Serializable {
     private Person author;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "poll_id")
-    @JsonManagedReference
     private final Collection<Vote> votes = new ArrayList<>();
 
     public Poll() {}
