@@ -5,8 +5,4 @@ import org.springframework.stereotype.Repository;
 import tech.jakubvolak.dat250project.model.Person;
 
 @Repository
-public interface PersonRepository extends JpaRepository<Person, Long> {
-    Person findById(long id);
-    Person findByUsername(String username);
-    Person findByEmail(String email);
-}
+public interface PersonRepository extends JpaRepository<Person, Long> {}

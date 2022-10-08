@@ -1,8 +1,6 @@
 package tech.jakubvolak.dat250project.repository;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import tech.jakubvolak.dat250project.model.Device;
 
-public interface DeviceRepository extends CrudRepository<Device, Long> {
-    Device findById(long id);
-}
+public interface DeviceRepository extends JpaRepository<Device, Long> {}
