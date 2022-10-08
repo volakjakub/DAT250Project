@@ -1,4 +1,4 @@
-package tech.jakubvolak.dat250project.model;
+package tech.dat250project.model;
 
 import org.springframework.lang.Nullable;
 
