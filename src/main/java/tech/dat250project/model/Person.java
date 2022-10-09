@@ -1,5 +1,7 @@
 package tech.dat250project.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -10,15 +12,18 @@ public class Person implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique=true)
     private String username;
     private String email;
     private String password;
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "person_id")
+    @JsonIgnore
     private final Collection<Poll> polls = new ArrayList<>();
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "person_id")
+    @JsonIgnore
     private final Collection<Vote> votes = new ArrayList<>();
 
     public Person() {}

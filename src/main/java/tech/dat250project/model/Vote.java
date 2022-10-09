@@ -11,16 +11,16 @@ public class Vote implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Boolean answer;
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "person_id", insertable = false, updatable = false)
+    @ManyToOne
+    @JoinColumn(name = "person_id")
     @Nullable
     private Person person;
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "device_id", insertable = false, updatable = false)
+    @ManyToOne
+    @JoinColumn(name = "device_id")
     @Nullable
     private Device device;
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "poll_id", insertable = false, updatable = false)
+    @ManyToOne
+    @JoinColumn(name = "poll_id")
     private Poll poll;
 
     public Vote() {}

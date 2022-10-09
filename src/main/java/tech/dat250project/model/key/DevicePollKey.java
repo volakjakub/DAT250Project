@@ -1,28 +1,25 @@
 package tech.dat250project.model.key;
 
-import tech.dat250project.model.Device;
-import tech.dat250project.model.Poll;
-
 import java.io.Serializable;
 
 public class DevicePollKey implements Serializable {
-    private Device device;
-    private Poll poll;
+    private Long device_id;
+    private Long poll_id;
 
-    public Device getDevice() {
-        return device;
+    public Long getDevice_id() {
+        return device_id;
     }
 
-    public void setDevice(Device device) {
-        this.device = device;
+    public void setDevice_id(Long device_id) {
+        this.device_id = device_id;
     }
 
-    public Poll getPoll() {
-        return poll;
+    public Long getPoll_id() {
+        return poll_id;
     }
 
-    public void setPoll(Poll poll) {
-        this.poll = poll;
+    public void setPoll_id(Long poll_id) {
+        this.poll_id = poll_id;
     }
 
     @Override
@@ -31,6 +28,6 @@ public class DevicePollKey implements Serializable {
     }
 
     public boolean equals(DevicePollKey obj) {
-        return this.device.getId().equals(obj.getDevice().getId()) && this.poll.getId().equals(obj.getPoll().getId());
+        return this.device_id.equals(obj.device_id) && this.poll_id.equals(obj.poll_id);
     }
 }

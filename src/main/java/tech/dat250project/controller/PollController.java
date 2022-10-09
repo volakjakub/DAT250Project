@@ -4,10 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tech.dat250project.model.Device;
-import tech.dat250project.model.DevicePoll;
-import tech.dat250project.model.Poll;
+import tech.dat250project.model.*;
 import tech.dat250project.repository.DevicePollRepository;
+import tech.dat250project.repository.DeviceRepository;
+import tech.dat250project.repository.PersonRepository;
 import tech.dat250project.repository.PollRepository;
 
 import java.util.List;
@@ -16,6 +16,10 @@ import java.util.List;
 public class PollController {
     @Autowired
     private PollRepository pollRepository;
+    @Autowired
+    private DeviceRepository deviceRepository;
+    @Autowired
+    private PersonRepository personRepository;
     @Autowired
     private DevicePollRepository devicePollRepository;
 
@@ -30,8 +34,12 @@ public class PollController {
     }
 
     @PostMapping("/poll")
-    Poll create(@RequestBody Poll poll) {
-        return pollRepository.save(poll);
+    Poll create(@RequestBody PollRequest poll) {
+        Person person = personRepository.findById(poll.getPerson_id()).orElse(null);
+        if(person != null) {
+            return pollRepository.save(new Poll(poll.getQuestion(), poll.getDate_from(), poll.getDate_to(), poll.getStatus(), poll.getCode(), person));
+        }
+        return null;
     }
 
     @PutMapping("/poll/{id}")
@@ -53,11 +61,16 @@ public class PollController {
     }
 
     @PostMapping("/poll/{id}/device")
-    ResponseEntity<HttpStatus> assignDevices(@RequestBody List<Device> devices, @PathVariable Long id) {
+    ResponseEntity<HttpStatus> assignDevices(@RequestBody List<Integer> ids, @PathVariable Long id) {
         Poll poll = pollRepository.findById(id).orElse(null);
         if(poll != null) {
-            for (Device device : devices) {
-                devicePollRepository.save(new DevicePoll(device, poll));
+            Device device;
+            for (Integer deviceId : ids) {
+                device = deviceRepository.findById(deviceId.longValue()).orElse(null);
+                if(device != null) {
+                    DevicePoll devicePoll = new DevicePoll(device, poll);
+                    devicePollRepository.save(devicePoll);
+                }
             }
             return new ResponseEntity<>(HttpStatus.OK);
         }

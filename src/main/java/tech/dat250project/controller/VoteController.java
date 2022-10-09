@@ -4,13 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tech.dat250project.model.Device;
-import tech.dat250project.model.DevicePoll;
-import tech.dat250project.model.DeviceVote;
-import tech.dat250project.model.Vote;
-import tech.dat250project.repository.DevicePollRepository;
-import tech.dat250project.repository.DeviceRepository;
-import tech.dat250project.repository.VoteRepository;
+import tech.dat250project.model.*;
+import tech.dat250project.repository.*;
 
 import java.util.List;
 
@@ -20,6 +15,10 @@ public class VoteController {
     private VoteRepository voteRepository;
     @Autowired
     private DeviceRepository deviceRepository;
+    @Autowired
+    private PersonRepository personRepository;
+    @Autowired
+    private PollRepository pollRepository;
     @Autowired
     private DevicePollRepository devicePollRepository;
 
@@ -34,8 +33,22 @@ public class VoteController {
     }
 
     @PostMapping("/vote")
-    Vote create(@RequestBody Vote vote) {
-        return voteRepository.save(vote);
+    Vote create(@RequestBody VoteRequest vote) {
+        if(vote.getPerson_id() != null) {
+            Person person = personRepository.findById(vote.getPerson_id()).orElse(null);
+            Poll poll = pollRepository.findById(vote.getPoll_id()).orElse(null);
+            if(poll != null) {
+                return voteRepository.save(new Vote(vote.getAnswer(), person, null, poll));
+            }
+        }
+        if(vote.getDevice_id() != null) {
+            Device device = deviceRepository.findById(vote.getDevice_id()).orElse(null);
+            Poll poll = pollRepository.findById(vote.getPoll_id()).orElse(null);
+            if(poll != null) {
+                return voteRepository.save(new Vote(vote.getAnswer(), null, device, poll));
+            }
+        }
+        return null;
     }
 
     @PutMapping("/vote/device")
@@ -58,7 +71,7 @@ public class VoteController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
-    @DeleteMapping("/poll/{id}")
+    @DeleteMapping("/vote/{id}")
     void delete(@PathVariable Long id) {
         voteRepository.deleteById(id);
     }
