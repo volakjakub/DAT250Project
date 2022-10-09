@@ -28,14 +28,12 @@ public class DeviceController {
         return deviceRepository.findAll();
     }
 
-    @Operation(summary = "Get a book by its id")
+    @Operation(summary = "Get a device by its id")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found the book",
+            @ApiResponse(responseCode = "200", description = "Found the device",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = Device.class)) }),
-            @ApiResponse(responseCode = "400", description = "Invalid id supplied",
-                    content = @Content),
-            @ApiResponse(responseCode = "404", description = "Book not found",
+            @ApiResponse(responseCode = "404", description = "Device with id not found",
                     content = @Content) })
     @GetMapping("/device/{id}")
     Device detail(@PathVariable Long id) {
@@ -43,11 +41,21 @@ public class DeviceController {
         return device.orElse(null);
     }
 
+    @Operation(summary = "Saves a device in the database")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Returns device saved",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Device.class)) })})
     @PostMapping("/register/device")
     Device create(@RequestBody Device device) {
         return deviceRepository.save(device);
     }
 
+    @Operation(summary = "Updates or creates device by id")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the device",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Device.class)) })})
     @PutMapping("/device/{id}")
     Device update(@RequestBody Device newDevice, @PathVariable Long id) {
         return deviceRepository.findById(id)
@@ -59,15 +67,7 @@ public class DeviceController {
                 .orElseGet(() -> deviceRepository.save(newDevice));
     }
 
-    @Operation(summary = "Get a device by its id")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found the book",
-                    content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Void.class)) }),
-            @ApiResponse(responseCode = "400", description = "Invalid id supplied",
-                    content = @Content),
-            @ApiResponse(responseCode = "404", description = "Book not found",
-                    content = @Content) })
+    @Operation(summary = "Deletes device")
     @DeleteMapping("/device/{id}")
     void delete(@PathVariable Long id) {
         deviceRepository.deleteById(id);

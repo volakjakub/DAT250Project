@@ -30,6 +30,13 @@ public class PersonController {
 
     @Operation(summary = "Gets a person by his/her id")
     @GetMapping("/person/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Person found",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Person.class))}),
+            @ApiResponse(responseCode = "404", description = "Id not found",
+                    content = @Content)
+    })
     Person detail(@PathVariable Long id) {
         Optional<Person> person = personRepository.findById(id);
         return person.orElse(null);
@@ -49,6 +56,13 @@ public class PersonController {
 
     @Operation(summary = "Edits the parameters of a person given his/her id")
     @PutMapping("/person/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Person modified succesfully",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Person.class))}),
+            @ApiResponse(responseCode = "404", description = "Id not found",
+                    content = @Content)
+    })
     Person update(@RequestBody Person newPerson, @PathVariable Long id) {
         return personRepository.findById(id)
                 .map(person -> {
@@ -62,6 +76,13 @@ public class PersonController {
 
     @Operation(summary = "Deletes a person given his/her id")
     @DeleteMapping("/person/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Person deleted succesfully",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Person.class))}),
+            @ApiResponse(responseCode = "404", description = "Id not found",
+                    content = @Content)
+    })
     void delete(@PathVariable Long id) {
         personRepository.deleteById(id);
     }
