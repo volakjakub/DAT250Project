@@ -1,8 +1,13 @@
 package tech.dat250project.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tech.dat250project.model.Device;
+import tech.dat250project.model.DevicePoll;
 import tech.dat250project.model.Poll;
+import tech.dat250project.repository.DevicePollRepository;
 import tech.dat250project.repository.PollRepository;
 
 import java.util.List;
@@ -11,6 +16,8 @@ import java.util.List;
 public class PollController {
     @Autowired
     private PollRepository pollRepository;
+    @Autowired
+    private DevicePollRepository devicePollRepository;
 
     @GetMapping("/poll")
     List<Poll> all() {
@@ -43,5 +50,27 @@ public class PollController {
     @DeleteMapping("/poll/{id}")
     void delete(@PathVariable Long id) {
         pollRepository.deleteById(id);
+    }
+
+    @PostMapping("/poll/{id}/device")
+    ResponseEntity<HttpStatus> assignDevices(@RequestBody List<Device> devices, @PathVariable Long id) {
+        Poll poll = pollRepository.findById(id).orElse(null);
+        if(poll != null) {
+            for (Device device : devices) {
+                devicePollRepository.save(new DevicePoll(device, poll));
+            }
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @DeleteMapping("/poll/{id}/device/{deviceId}")
+    ResponseEntity<HttpStatus> deleteDevice(@PathVariable Long deviceId, @PathVariable Long id) {
+        DevicePoll devicePoll = devicePollRepository.findByDeviceIdAndPollId(deviceId, id);
+        if(devicePoll != null) {
+            devicePollRepository.delete(devicePoll);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

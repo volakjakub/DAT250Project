@@ -43,7 +43,7 @@ public class DeviceController {
         return device.orElse(null);
     }
 
-    @PostMapping("/device")
+    @PostMapping("/register/device")
     Device create(@RequestBody Device device) {
         return deviceRepository.save(device);
     }
