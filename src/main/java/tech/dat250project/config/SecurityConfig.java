@@ -37,7 +37,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable().authorizeRequests().antMatchers("/login", "/register", "/register/device", "/vote/device", "/swagger-ui.html", "/swagger-ui/index.html", "/api-docs").permitAll()
+        http.csrf().disable().authorizeRequests().antMatchers("/login", "/register", "/register/device", "/vote/device",
+                        "/swagger-ui.html", "/swagger-ui/index.html", "/api-docs", "/swagger-ui/swagger-initializer.js",
+                        "/swagger-ui/swagger-ui-bundle.js", "/swagger-ui/swagger-ui-bundl", "/swagger-ui/index.css", "/swagger-ui/swagger-ui.css",
+                        "/swagger-ui/swagger-ui-standalone-preset.js", "/api-docs/swagger-config", "/swagger-ui/swagger-ui-stand", "/swagger-ui/favicon-32x32.png","/swagger-ui/favicon-16x16.png").permitAll()
                 .anyRequest().authenticated()
                 .and().logout().permitAll();
 
