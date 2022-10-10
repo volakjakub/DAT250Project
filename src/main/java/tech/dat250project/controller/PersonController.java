@@ -71,7 +71,10 @@ public class PersonController {
                     person.setPassword(passwordEncoder.encode(newPerson.getPassword()));
                     return personRepository.save(person);
                 })
-                .orElseGet(() -> personRepository.save(newPerson));
+                .orElseGet(() -> {
+                    newPerson.setPassword(passwordEncoder.encode(newPerson.getPassword()));
+                    return personRepository.save(newPerson);
+                });
     }
 
     @Operation(summary = "Deletes a person given his/her id")

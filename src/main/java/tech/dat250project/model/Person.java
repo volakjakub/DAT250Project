@@ -39,6 +39,8 @@ public class Person implements Serializable {
         this.password = password;
     }
 
+    public Long getId() { return id; }
+
     public String getUsername() {
         return username;
     }
