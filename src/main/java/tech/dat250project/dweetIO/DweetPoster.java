@@ -20,22 +20,12 @@ public class DweetPoster {
         } catch (Exception e){
             e.printStackTrace();
         }
-        if (con == null) try {
+        try {
             con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("POST");
         }catch (Exception e){
             e.printStackTrace();
         }
-        else{
-            try {
-                con.connect();
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-        try {
-            con.setRequestMethod("POST");
-        }catch (Exception e){
-            e.printStackTrace();}
 
         con.setRequestProperty("Content-Type", "application/json");
         con.setDoOutput(true);
@@ -51,5 +41,6 @@ public class DweetPoster {
             e.printStackTrace();
         }
         con.disconnect();
+        con = null;
     }
 }
