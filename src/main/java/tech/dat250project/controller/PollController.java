@@ -28,7 +28,8 @@ public class PollController {
     private PersonRepository personRepository;
     @Autowired
     private DevicePollRepository devicePollRepository;
-
+    @Autowired
+    private DweetPoster dweetPoster;
     @Operation(summary = "Fetches all the polls")
     @GetMapping("/poll")
     @ApiResponses(value = {
@@ -68,7 +69,7 @@ public class PollController {
         Person person = personRepository.findById(poll.getPerson_id()).orElse(null);
         if(person != null) {
             Poll p = new Poll(poll.getQuestion(), poll.getDate_from(), poll.getDate_to(), poll.getStatus(), poll.getCode(), person);
-            DweetPoster.publish(p);
+            dweetPoster.publish(p);
             return pollRepository.save(p);
         }
         return null;
@@ -93,7 +94,7 @@ public class PollController {
                     poll.setStatus(newPoll.getStatus());
                     poll.setDate_from(newPoll.getDate_from());
                     poll.setDate_to(newPoll.getDate_to());
-                    if (statusChanged) DweetPoster.publish(poll);
+                    if (statusChanged) dweetPoster.publish(poll);
                     return pollRepository.save(poll);
                 })
                 .orElseGet(() -> pollRepository.save(newPoll));
