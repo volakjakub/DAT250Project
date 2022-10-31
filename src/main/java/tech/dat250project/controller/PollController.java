@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tech.dat250project.dweetIO.DweetPoster;
 import tech.dat250project.model.*;
 import tech.dat250project.repository.DevicePollRepository;
 import tech.dat250project.repository.DeviceRepository;
@@ -66,7 +67,9 @@ public class PollController {
     Poll create(@RequestBody PollRequest poll) {
         Person person = personRepository.findById(poll.getPerson_id()).orElse(null);
         if(person != null) {
-            return pollRepository.save(new Poll(poll.getQuestion(), poll.getDate_from(), poll.getDate_to(), poll.getStatus(), poll.getCode(), person));
+            Poll p = new Poll(poll.getQuestion(), poll.getDate_from(), poll.getDate_to(), poll.getStatus(), poll.getCode(), person);
+            DweetPoster.publish(p);
+            return pollRepository.save(p);
         }
         return null;
     }
@@ -84,10 +87,13 @@ public class PollController {
     Poll update(@RequestBody Poll newPoll, @PathVariable Long id) {
         return pollRepository.findById(id)
                 .map(poll -> {
+                    Boolean statusChanged = false;
+                    if (poll.getStatus() != newPoll.getStatus()) statusChanged = true;
                     poll.setQuestion(newPoll.getQuestion());
                     poll.setStatus(newPoll.getStatus());
                     poll.setDate_from(newPoll.getDate_from());
                     poll.setDate_to(newPoll.getDate_to());
+                    if (statusChanged) DweetPoster.publish(poll);
                     return pollRepository.save(poll);
                 })
                 .orElseGet(() -> pollRepository.save(newPoll));
