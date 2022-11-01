@@ -3,6 +3,7 @@ package tech.dat250project.message;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import org.springframework.stereotype.Service;
 import tech.dat250project.model.Poll;
 import tech.dat250project.model.Vote;
 
@@ -11,11 +12,12 @@ import java.io.UnsupportedEncodingException;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+@Service
 public class Sender {
-    private static final String EXCHANGE_NAME = "answer";
+    private static final String EXCHANGE_NAME = "pollResults";
     private static final String EXCHANGE_TYPE = "fanout";
 
-    public static void send(Poll poll) {
+    public void send(Poll poll) {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         try (Connection connection = factory.newConnection(); Channel channel = connection.createChannel()) {

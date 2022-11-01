@@ -21,16 +21,25 @@ import java.util.List;
 
 @RestController
 public class PollController {
+
     @Autowired
     private PollRepository pollRepository;
+
     @Autowired
     private DeviceRepository deviceRepository;
+
     @Autowired
     private PersonRepository personRepository;
+
     @Autowired
     private DevicePollRepository devicePollRepository;
+
     @Autowired
     private DweetPoster dweetPoster;
+
+    @Autowired
+    private Sender sender;
+
     @Operation(summary = "Fetches all the polls")
     @GetMapping("/poll")
     @ApiResponses(value = {
@@ -90,14 +99,14 @@ public class PollController {
         return pollRepository.findById(id)
                 .map(poll -> {
                     Boolean statusChanged = false;
-                    if (poll.getStatus() != newPoll.getStatus()) statusChanged = true;
+                    if (poll.getStatus() != newPoll.getStatus()) {statusChanged = true;}
                     poll.setQuestion(newPoll.getQuestion());
                     poll.setStatus(newPoll.getStatus());
                     poll.setDate_from(newPoll.getDate_from());
                     poll.setDate_to(newPoll.getDate_to());
                     if (statusChanged) {
-                        dweetPoster.publish(poll);
-                        Sender.send(poll);
+                        dweetPoster.publish(newPoll);
+                        sender.send(poll);
                     }
                     return pollRepository.save(poll);
                 })
