@@ -89,12 +89,12 @@ public class PollController {
         return pollRepository.findById(id)
                 .map(poll -> {
                     Boolean statusChanged = false;
-                    if (poll.getStatus() != newPoll.getStatus()) statusChanged = true;
+                    if (poll.getStatus() != newPoll.getStatus()) {statusChanged = true;}
                     poll.setQuestion(newPoll.getQuestion());
                     poll.setStatus(newPoll.getStatus());
                     poll.setDate_from(newPoll.getDate_from());
                     poll.setDate_to(newPoll.getDate_to());
-                    if (statusChanged) dweetPoster.publish(poll);
+                    if (statusChanged) {dweetPoster.publish(newPoll);}
                     return pollRepository.save(poll);
                 })
                 .orElseGet(() -> pollRepository.save(newPoll));
