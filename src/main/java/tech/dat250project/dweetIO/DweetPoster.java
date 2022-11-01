@@ -1,8 +1,6 @@
 package tech.dat250project.dweetIO;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import tech.dat250project.model.Poll;
 

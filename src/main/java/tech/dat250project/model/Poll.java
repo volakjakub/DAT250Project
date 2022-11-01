@@ -20,6 +20,7 @@ public class Poll implements Serializable {
     private String code;
     @ManyToOne
     @JoinColumn(name = "person_id")
+    @JsonIncludeProperties({"id"})
     private Person author;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "poll_id")
