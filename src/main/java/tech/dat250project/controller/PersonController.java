@@ -6,8 +6,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import tech.dat250project.model.Message;
 import tech.dat250project.repository.PersonRepository;
 import tech.dat250project.model.Person;
 
@@ -16,6 +19,7 @@ import java.util.Optional;
 
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 public class PersonController {
     @Autowired
     private PersonRepository personRepository;
@@ -49,9 +53,13 @@ public class PersonController {
                     content = {@Content(mediaType = "application/json",
                     schema = @Schema(implementation = Person.class))})
     })
-    Person create(@RequestBody Person person) {
+    ResponseEntity create(@RequestBody Person person) {
         person.setPassword(passwordEncoder.encode(person.getPassword()));
-        return personRepository.save(person);
+        try {
+            return ResponseEntity.ok(personRepository.save(person));
+        } catch(Exception e) {
+            return ResponseEntity.badRequest().body(new Message("Something went wrong... Please, try it again."));
+        }
     }
 
     @Operation(summary = "Edits the parameters of a person given his/her id")
