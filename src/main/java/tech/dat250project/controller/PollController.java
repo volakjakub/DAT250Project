@@ -78,7 +78,7 @@ public class PollController {
     Poll create(@RequestBody PollRequest poll) {
         Person person = personRepository.findById(poll.getPerson_id()).orElse(null);
         if(person != null) {
-            Poll p = new Poll(poll.getQuestion(), poll.getDate_from(), poll.getDate_to(), poll.getStatus(), poll.getCode(), person);
+            Poll p = new Poll(poll.getQuestion(), poll.getOpened(), poll.getStatus(), poll.getCode(), person);
             dweetPoster.publish(p);
             return pollRepository.save(p);
         }
@@ -98,13 +98,10 @@ public class PollController {
     Poll update(@RequestBody Poll newPoll, @PathVariable Long id) {
         return pollRepository.findById(id)
                 .map(poll -> {
-                    Boolean statusChanged = false;
-                    if (poll.getStatus() != newPoll.getStatus()) {statusChanged = true;}
                     poll.setQuestion(newPoll.getQuestion());
                     poll.setStatus(newPoll.getStatus());
-                    poll.setDate_from(newPoll.getDate_from());
-                    poll.setDate_to(newPoll.getDate_to());
-                    if (statusChanged) {
+                    poll.setOpened(newPoll.getOpened());
+                    if (poll.getOpened() != newPoll.getOpened()) {
                         dweetPoster.publish(newPoll);
                         sender.send(poll);
                     }
