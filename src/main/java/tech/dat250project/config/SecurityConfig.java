@@ -49,8 +49,6 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
                 .and().logout().permitAll();
 
-        http.headers().frameOptions().sameOrigin();
-
         return http.build();
     }
 }

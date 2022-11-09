@@ -13,19 +13,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import tech.dat250project.model.Message;
 import tech.dat250project.model.Person;
-
-import java.util.List;
+import tech.dat250project.repository.PersonRepository;
 
 @RestController
 public class AuthController {
-
     @Autowired
     private DaoAuthenticationProvider daoAuthenticationProvider;
+    @Autowired
+    private PersonRepository personRepository;
 
     @Operation(summary = "Login in to the page")
     @ApiResponses(value = {
@@ -43,17 +41,17 @@ public class AuthController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = ResponseEntity.class))})})
     @PostMapping("/login")
-    public ResponseEntity<HttpStatus> login(@RequestBody Person person) {
+    public ResponseEntity login(@RequestBody Person person) {
 
         Authentication authObject;
         try {
             authObject = daoAuthenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(person.getUsername(), person.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authObject);
         } catch (BadCredentialsException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(new Message("Bad username or password!"));
         }
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.ok(personRepository.findByUsername(person.getUsername()));
     }
 
     @Operation(summary = "Logout from to the page")
