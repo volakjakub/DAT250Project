@@ -3,6 +3,7 @@ package tech.dat250project.dweetIO;
 import com.google.gson.Gson;
 import org.springframework.stereotype.Service;
 import tech.dat250project.model.Poll;
+import tech.dat250project.model.key.PollDTO;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -36,7 +37,7 @@ public class DweetPoster {
         this.con.setDoOutput(true);
 
         Gson gson = new Gson();
-        String json = gson.toJson(p);
+        String json = gson.toJson(new PollDTO(p));
 
         try(DataOutputStream os = new DataOutputStream(con.getOutputStream())) {
             byte[] input = json.getBytes("utf-8");
