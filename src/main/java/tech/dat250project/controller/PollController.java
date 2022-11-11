@@ -75,14 +75,19 @@ public class PollController {
             @ApiResponse(responseCode = "404", description = "Person not found",
                     content = @Content)
     })
-    Poll create(@RequestBody PollRequest poll) {
+    ResponseEntity create(@RequestBody PollRequest poll) {
         Person person = personRepository.findById(poll.getPerson_id()).orElse(null);
         if(person != null) {
-            Poll p = new Poll(poll.getQuestion(), poll.getOpened(), poll.getStatus(), poll.getCode(), person);
-            dweetPoster.publish(p);
-            return pollRepository.save(p);
+            Poll p = new Poll(poll.getQuestion(), poll.getOpened(), poll.getStatus(), person);
+            try {
+                Poll saved = pollRepository.save(p);
+                dweetPoster.publish(saved);
+                return ResponseEntity.ok(saved);
+            } catch(Exception e) {
+                return ResponseEntity.internalServerError().body(new Message("Something went wrong... Please, try it again."));
+            }
         }
-        return null;
+        return ResponseEntity.notFound().build();
     }
 
     @Operation(summary = "Updates a poll given its id")
