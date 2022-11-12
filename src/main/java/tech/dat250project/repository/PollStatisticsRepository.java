@@ -6,6 +6,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 
 public interface PollStatisticsRepository extends MongoRepository<PollStatistics, String> {
-    
     public PollStatistics findByPollId(Long pollId);
 }
