@@ -73,6 +73,7 @@ public class VoteController {
         if (poll == null) return null;
 
         Vote newVote = voteRepository.save(new Vote(vote.getAnswer(), person, null, poll));
+
         poll = pollRepository.findById(vote.getPoll_id()).orElse(null);
         PollStatistics pollStatistics = pollStatisticsRepository.findByPollId(poll.getId());
 
@@ -101,22 +102,35 @@ public class VoteController {
     })
     ResponseEntity<HttpStatus> createFromDevice(@RequestBody DeviceVote deviceVote) {
         Device device = deviceRepository.findByAddress(deviceVote.getAddress());
-        if(device != null) {
-            DevicePoll devicePoll = devicePollRepository.findByDeviceId(device.getId());
-            if(devicePoll != null) {
-                Poll poll = devicePoll.getPoll();
-                for(int i = 0; i < deviceVote.getRed(); i++) {
-                    voteRepository.save(new Vote(false, null, device, devicePoll.getPoll()));
-                }
-                for(int i = 0; i < deviceVote.getGreen(); i++) {
-                    voteRepository.save(new Vote(true, null, device, devicePoll.getPoll()));
-                }
-                pollStatisticsRepository.save(new PollStatistics(poll.getId(), poll.getQuestion(), poll.getVotes().size(), poll.countYes(), poll.countNo()));
-                devicePollRepository.delete(devicePoll);
-                return new ResponseEntity<>(HttpStatus.OK);
-            }
+        if(device == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        DevicePoll devicePoll = devicePollRepository.findByDeviceId(device.getId());
+
+        if(devicePoll != null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        Poll poll = devicePoll.getPoll();
+
+        for(int i = 0; i < deviceVote.getRed(); i++) {
+            voteRepository.save(new Vote(false, null, device, devicePoll.getPoll()));
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        for(int i = 0; i < deviceVote.getGreen(); i++) {
+            voteRepository.save(new Vote(true, null, device, devicePoll.getPoll()));
+        }
+
+        PollStatistics pollStatistics = pollStatisticsRepository.findByPollId(poll.getId());
+
+        if (pollStatistics != null) {
+            pollStatistics.setTotalVotes(poll.getVotes().size());
+            pollStatistics.setYes(poll.countYes());
+            pollStatistics.setNo(poll.countNo());
+        } else {
+            pollStatistics = new PollStatistics(poll.getId(), poll.getQuestion(), poll.getVotes().size(), poll.countYes(), poll.countNo());
+        }
+        pollStatisticsRepository.save(pollStatistics);
+
+        devicePollRepository.delete(devicePoll);
+        return new ResponseEntity<>(HttpStatus.OK);
+
     }
 
     @Operation(summary = "Deletes a vote given his/her id")
