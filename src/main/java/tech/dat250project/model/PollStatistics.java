@@ -6,7 +6,7 @@ import javax.persistence.Id;
 public class PollStatistics {
     
     @Id
-    private Long id;
+    private String id;
 
     private Long pollId;
     private String question;
@@ -24,11 +24,11 @@ public class PollStatistics {
         this.no = no;
     }
 
-    public Long getId() {
+    public String getId() {
         return this.id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -71,5 +71,9 @@ public class PollStatistics {
     public void setNo(int no) {
         this.no = no;
     }
-    
+
+    @Override
+    public String toString() {
+        return this.pollId + " " + this.question + " " + this.totalVotes + " " + this.no + " " + this.yes;
+    }
 }

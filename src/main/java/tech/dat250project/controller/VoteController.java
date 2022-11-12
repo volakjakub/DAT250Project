@@ -65,43 +65,29 @@ public class VoteController {
                     content = @Content)
     })
     Vote create(@RequestBody VoteRequest vote) {
-        if(vote.getPerson_id() != null) {
-            Person person = personRepository.findById(vote.getPerson_id()).orElse(null);
-            Poll poll = pollRepository.findById(vote.getPoll_id()).orElse(null);
-            if(poll != null) {
-                PollStatistics pollStatistics = pollStatisticsRepository.findByPollId(poll.getId());
-                if(pollStatistics != null){
-                    pollStatistics.setTotalVotes(poll.getVotes().size());
-                    pollStatistics.setYes(poll.countYes());
-                    pollStatistics.setNo(poll.countNo());
-                }
-                else{
-                    pollStatistics = new PollStatistics(poll.getId(), poll.getQuestion(), poll.getVotes().size(), poll.countYes(), poll.countNo());
-                }
-                Vote newVote = voteRepository.save(new Vote(vote.getAnswer(), person, null, poll));
-                pollStatisticsRepository.save(pollStatistics);
-                return newVote;
-            }
+        if(vote.getPerson_id() == null)  return null;
+
+        Person person = personRepository.findById(vote.getPerson_id()).orElse(null);
+        Poll poll = pollRepository.findById(vote.getPoll_id()).orElse(null);
+
+        if (poll == null) return null;
+
+        Vote newVote = voteRepository.save(new Vote(vote.getAnswer(), person, null, poll));
+        poll = pollRepository.findById(vote.getPoll_id()).orElse(null);
+        PollStatistics pollStatistics = pollStatisticsRepository.findByPollId(poll.getId());
+
+        if (pollStatistics != null) {
+            pollStatistics.setTotalVotes(poll.getVotes().size());
+            pollStatistics.setYes(poll.countYes());
+            pollStatistics.setNo(poll.countNo());
+        } else {
+            pollStatistics = new PollStatistics(poll.getId(), poll.getQuestion(), poll.getVotes().size(), poll.countYes(), poll.countNo());
         }
-        if(vote.getDevice_id() != null) {
-            Device device = deviceRepository.findById(vote.getDevice_id()).orElse(null);
-            Poll poll = pollRepository.findById(vote.getPoll_id()).orElse(null);
-            if(poll != null) {
-                Vote newVote = voteRepository.save(new Vote(vote.getAnswer(), null, null, poll));
-                PollStatistics pollStatistics = pollStatisticsRepository.findByPollId(poll.getId());
-                if(pollStatistics != null){
-                    pollStatistics.setTotalVotes(poll.getVotes().size());
-                    pollStatistics.setYes(poll.countYes());
-                    pollStatistics.setNo(poll.countNo());
-                }
-                else{
-                    pollStatistics = new PollStatistics(poll.getId(), poll.getQuestion(), poll.getVotes().size(), poll.countYes(), poll.countNo());
-                }
-                pollStatisticsRepository.save(pollStatistics);
-                return newVote;
-            }
-        }
-        return null;
+
+        pollStatisticsRepository.save(pollStatistics);
+        //System.out.println(pollStatisticsRepository.findByPollId(poll.getId()));
+        return newVote;
+
     }
 
     @Operation(summary = "Updates poll with the answers stored in the device and then detaches it")
