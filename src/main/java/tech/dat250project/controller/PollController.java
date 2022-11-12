@@ -8,6 +8,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import tech.dat250project.dweetIO.DweetPoster;
 import tech.dat250project.message.Sender;
@@ -16,8 +19,10 @@ import tech.dat250project.repository.DevicePollRepository;
 import tech.dat250project.repository.DeviceRepository;
 import tech.dat250project.repository.PersonRepository;
 import tech.dat250project.repository.PollRepository;
+import tech.dat250project.security.UserDetailsImpl;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class PollController {
@@ -40,18 +45,26 @@ public class PollController {
     @Autowired
     private Sender sender;
 
-    @Operation(summary = "Fetches all the polls")
+    @Operation(summary = "Fetches all the polls for logged user")
     @GetMapping("/poll")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Polls fetched successfully",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = List.class))}),
-            @ApiResponse(responseCode = "404", description = "No polls were found",
-                    content = @Content)
+                            schema = @Schema(implementation = List.class))})
     })
-    List<Poll> all() {
-        return pollRepository.findAll();
+    ResponseEntity all() {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(pollRepository.findAllByPersonId(userDetails.getId()));
     }
+
+    @Operation(summary = "Fetches all the public polls")
+    @GetMapping("/public/poll")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Polls fetched successfully",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = List.class))})
+    })
+    List<Poll> allPublic() { return pollRepository.findAllPublicPolls(); }
 
     @Operation(summary = "Fetches a poll given its id")
     @GetMapping("/poll/{id}")

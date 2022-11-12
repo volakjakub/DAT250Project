@@ -33,9 +33,8 @@ public class Poll implements Serializable {
         final char[] idchars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
         char[] id = new char[7];
         Random r = new Random(System.currentTimeMillis());
-        for (int i = 0;  i < 7;  i++) {
+        for (int i = 0;i < 7;i++) {
             id[i] = idchars[r.nextInt(idchars.length)];
-
         }
         this.question = question;
         this.opened = opened;

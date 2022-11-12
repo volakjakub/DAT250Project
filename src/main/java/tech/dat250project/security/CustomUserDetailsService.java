@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import tech.dat250project.model.Person;
 import tech.dat250project.repository.PersonRepository;
 
-import java.util.ArrayList;
+import javax.transaction.Transactional;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -16,12 +16,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     private PersonRepository personRepository;
 
     @Override
+    @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         Person existingUser = personRepository.findByUsername(username).orElseThrow(() ->
                 new UsernameNotFoundException("User not found"));
 
-        return new org.springframework.security.core.userdetails.User(
-                existingUser.getUsername(), existingUser.getPassword(), new ArrayList<>());
+        return UserDetailsImpl.build(existingUser);
     }
 }
