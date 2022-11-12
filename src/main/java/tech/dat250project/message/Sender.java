@@ -5,12 +5,10 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import org.springframework.stereotype.Service;
 import tech.dat250project.model.Poll;
-import tech.dat250project.model.Vote;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 @Service
 public class Sender {
@@ -30,18 +28,8 @@ public class Sender {
             stb.append("Question: " + poll.getQuestion());
             stb.append('\n');
 
-            // COUNT NUMBER OF YES
-            Integer yes = poll.getVotes().stream()
-                    .map(Vote::getAnswer)
-                    .filter(answer -> answer==true)
-                    .collect(Collectors.toList()).size();
-
-            // COUNT NUMBER OF NO
-            Integer no = poll.getVotes().stream()
-                    .map(Vote::getAnswer)
-                    .filter(answer -> answer==false)
-                    .collect(Collectors.toList()).size();
-            stb.append("YES: " + yes + "\nNO: " + no);
+            
+            stb.append("YES: " + poll.countYes() + "\nNO: " + poll.countNo());
 
             String results = stb.toString();
 
