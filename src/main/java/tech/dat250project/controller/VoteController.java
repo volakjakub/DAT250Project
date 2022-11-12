@@ -26,6 +26,8 @@ public class VoteController {
     private PollRepository pollRepository;
     @Autowired
     private DevicePollRepository devicePollRepository;
+    @Autowired
+    private PollStatisticsRepository pollStatisticsRepository;
 
     @Operation(summary = "Fetches all the votes")
     @GetMapping("/vote")
@@ -67,14 +69,36 @@ public class VoteController {
             Person person = personRepository.findById(vote.getPerson_id()).orElse(null);
             Poll poll = pollRepository.findById(vote.getPoll_id()).orElse(null);
             if(poll != null) {
-                return voteRepository.save(new Vote(vote.getAnswer(), person, null, poll));
+                PollStatistics pollStatistics = pollStatisticsRepository.findByPollId(poll.getId());
+                if(pollStatistics != null){
+                    pollStatistics.setTotalVotes(poll.getVotes().size());
+                    pollStatistics.setYes(poll.countYes());
+                    pollStatistics.setNo(poll.countNo());
+                }
+                else{
+                    pollStatistics = new PollStatistics(poll.getId(), poll.getQuestion(), poll.getVotes().size(), poll.countYes(), poll.countNo());
+                }
+                Vote newVote = voteRepository.save(new Vote(vote.getAnswer(), person, null, poll));
+                pollStatisticsRepository.save(pollStatistics);
+                return newVote;
             }
         }
         if(vote.getDevice_id() != null) {
             Device device = deviceRepository.findById(vote.getDevice_id()).orElse(null);
             Poll poll = pollRepository.findById(vote.getPoll_id()).orElse(null);
             if(poll != null) {
-                return voteRepository.save(new Vote(vote.getAnswer(), null, device, poll));
+                Vote newVote = voteRepository.save(new Vote(vote.getAnswer(), null, null, poll));
+                PollStatistics pollStatistics = pollStatisticsRepository.findByPollId(poll.getId());
+                if(pollStatistics != null){
+                    pollStatistics.setTotalVotes(poll.getVotes().size());
+                    pollStatistics.setYes(poll.countYes());
+                    pollStatistics.setNo(poll.countNo());
+                }
+                else{
+                    pollStatistics = new PollStatistics(poll.getId(), poll.getQuestion(), poll.getVotes().size(), poll.countYes(), poll.countNo());
+                }
+                pollStatisticsRepository.save(pollStatistics);
+                return newVote;
             }
         }
         return null;
@@ -94,13 +118,14 @@ public class VoteController {
         if(device != null) {
             DevicePoll devicePoll = devicePollRepository.findByDeviceId(device.getId());
             if(devicePoll != null) {
+                Poll poll = devicePoll.getPoll();
                 for(int i = 0; i < deviceVote.getRed(); i++) {
                     voteRepository.save(new Vote(false, null, device, devicePoll.getPoll()));
                 }
                 for(int i = 0; i < deviceVote.getGreen(); i++) {
                     voteRepository.save(new Vote(true, null, device, devicePoll.getPoll()));
                 }
-
+                pollStatisticsRepository.save(new PollStatistics(poll.getId(), poll.getQuestion(), poll.getVotes().size(), poll.countYes(), poll.countNo()));
                 devicePollRepository.delete(devicePoll);
                 return new ResponseEntity<>(HttpStatus.OK);
             }

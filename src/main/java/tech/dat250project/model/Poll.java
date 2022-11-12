@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Entity
 public class Poll implements Serializable {
@@ -62,4 +63,18 @@ public class Poll implements Serializable {
     public Collection<Vote> getVotes() {
         return votes;
     }
-}
+
+    public int countYes(){
+        return this.getVotes().stream()
+            .map(Vote::getAnswer)
+            .filter(answer -> answer==true)
+            .collect(Collectors.toList()).size();
+    }
+
+    public int countNo(){
+        return this.getVotes().stream()
+            .map(Vote::getAnswer)
+            .filter(answer -> answer==false)
+            .collect(Collectors.toList()).size();
+    }
+}   
