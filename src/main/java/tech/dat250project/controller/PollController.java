@@ -67,6 +67,27 @@ public class PollController {
     List<Poll> allPublic() { return pollRepository.findAllPublicPolls(); }
 
     @Operation(summary = "Fetches a poll given its id")
+    @GetMapping("/public/poll/{id}")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Poll fetched successfully",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Poll.class))}),
+            @ApiResponse(responseCode = "404", description = "Poll id not found",
+                    content = @Content)
+    })
+    ResponseEntity publicDetail(@PathVariable Long id) {
+        Optional<Poll> poll = pollRepository.findById(id);
+        if(poll.isPresent()) {
+            if(poll.get().getStatus()) {
+                Poll p = poll.get();
+                return ResponseEntity.ok(new PollResponse(p.getId(), p.getQuestion(), p.getCode(), p.getOpened(), p.getStatus(), p.getAuthor().getId(), p.countYes(), p.countNo()));
+            }
+            return ResponseEntity.badRequest().body(new Message("This poll is not public."));
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("Poll not found!"));
+    }
+
+    @Operation(summary = "Fetches a poll given its id")
     @GetMapping("/poll/{id}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Poll fetched successfully",
@@ -75,8 +96,13 @@ public class PollController {
             @ApiResponse(responseCode = "404", description = "Poll id not found",
                     content = @Content)
     })
-    Poll detail(@PathVariable Long id) {
-        return pollRepository.findById(id).orElse(null);
+    ResponseEntity detail(@PathVariable Long id) {
+        Optional<Poll> poll = pollRepository.findById(id);
+        if(poll.isPresent()) {
+            Poll p = poll.get();
+            return ResponseEntity.ok(new PollResponse(p.getId(), p.getQuestion(), p.getCode(), p.getOpened(), p.getStatus(), p.getAuthor().getId(), p.countYes(), p.countNo()));
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("Poll not found!"));
     }
 
     @Operation(summary = "Creates a new poll")
@@ -100,7 +126,7 @@ public class PollController {
                 return ResponseEntity.internalServerError().body(new Message("Something went wrong... Please, try it again."));
             }
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("User not found."));
     }
 
     @Operation(summary = "Updates a poll given its id")
