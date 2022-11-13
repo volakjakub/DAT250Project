@@ -6,6 +6,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Random;
 import java.util.Date;
 import java.util.stream.Collectors;
 
@@ -17,6 +18,7 @@ public class Poll implements Serializable {
     private String question;
     private Boolean opened;
     private Boolean status;
+    @Column(unique=true)
     private String code;
     @ManyToOne
     @JoinColumn(name = "person_id")
@@ -29,11 +31,17 @@ public class Poll implements Serializable {
 
     public Poll() {}
 
-    public Poll(String question, Boolean opened, Boolean status, String code, Person author) {
+    public Poll(String question, Boolean opened, Boolean status, Person author) {
+        final char[] idchars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
+        char[] id = new char[7];
+        Random r = new Random(System.currentTimeMillis());
+        for (int i = 0;i < 7;i++) {
+            id[i] = idchars[r.nextInt(idchars.length)];
+        }
         this.question = question;
         this.opened = opened;
         this.status = status;
-        this.code = code;
+        this.code = new String(id);
         this.author = author;
     }
 
@@ -77,4 +85,4 @@ public class Poll implements Serializable {
             .filter(answer -> answer==false)
             .collect(Collectors.toList()).size();
     }
-}   
+}

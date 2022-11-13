@@ -52,6 +52,9 @@ public class PersonController {
                     schema = @Schema(implementation = Person.class))})
     })
     ResponseEntity create(@RequestBody Person person) {
+        if(personRepository.findByUsername(person.getUsername()).isPresent()) {
+            return ResponseEntity.badRequest().body(new Message("User with this username already exists."));
+        }
         person.setPassword(passwordEncoder.encode(person.getPassword()));
         try {
             return ResponseEntity.ok(personRepository.save(person));
