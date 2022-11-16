@@ -72,9 +72,9 @@ public class AuthController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = ResponseEntity.class))})})
     @PostMapping("/logout")
-    public ResponseEntity<HttpStatus> logout() {
+    public ResponseEntity logout() {
         SecurityContextHolder.getContext().setAuthentication(null);
         ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).build();
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new Message("Logout success."));
     }
 }

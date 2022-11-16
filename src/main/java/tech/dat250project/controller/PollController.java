@@ -67,7 +67,7 @@ public class PollController {
     List<Poll> allPublic() { return pollRepository.findAllPublicPolls(); }
 
     @Operation(summary = "Fetches a poll given its id")
-    @GetMapping("/public/poll/{id}")
+    @GetMapping("/public/poll/{code}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Poll fetched successfully",
                     content = {@Content(mediaType = "application/json",
@@ -75,8 +75,8 @@ public class PollController {
             @ApiResponse(responseCode = "404", description = "Poll id not found",
                     content = @Content)
     })
-    ResponseEntity publicDetail(@PathVariable Long id) {
-        Optional<Poll> poll = pollRepository.findById(id);
+    ResponseEntity publicDetail(@PathVariable String code) {
+        Optional<Poll> poll = pollRepository.findByCode(code);
         if(poll.isPresent()) {
             if(poll.get().getStatus()) {
                 Poll p = poll.get();
@@ -88,7 +88,7 @@ public class PollController {
     }
 
     @Operation(summary = "Fetches a poll given its id")
-    @GetMapping("/poll/{id}")
+    @GetMapping("/poll/{code}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Poll fetched successfully",
                     content = {@Content(mediaType = "application/json",
@@ -96,8 +96,8 @@ public class PollController {
             @ApiResponse(responseCode = "404", description = "Poll id not found",
                     content = @Content)
     })
-    ResponseEntity detail(@PathVariable Long id) {
-        Optional<Poll> poll = pollRepository.findById(id);
+    ResponseEntity detail(@PathVariable String code) {
+        Optional<Poll> poll = pollRepository.findByCode(code);
         if(poll.isPresent()) {
             Poll p = poll.get();
             return ResponseEntity.ok(new PollResponse(p.getId(), p.getQuestion(), p.getCode(), p.getOpened(), p.getStatus(), p.getAuthor().getId(), p.countYes(), p.countNo()));
