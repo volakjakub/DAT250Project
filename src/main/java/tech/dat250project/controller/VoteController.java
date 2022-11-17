@@ -8,9 +8,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import tech.dat250project.model.*;
 import tech.dat250project.repository.*;
+import tech.dat250project.security.UserDetailsImpl;
 
 import java.util.List;
 
@@ -64,17 +66,17 @@ public class VoteController {
             @ApiResponse(responseCode = "404", description = "Person, device or poll not found",
                     content = @Content)
     })
-    Vote create(@RequestBody VoteRequest vote) {
-        if(vote.getPerson_id() == null)  return null;
+    ResponseEntity create(@RequestBody VoteRequest vote) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        Person person = personRepository.findById(vote.getPerson_id()).orElse(null);
+        Person person = personRepository.findByUsername(userDetails.getUsername()).orElse(null);
         Poll poll = pollRepository.findById(vote.getPoll_id()).orElse(null);
-
-        if (poll == null) return null;
+        if(poll == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("Poll not found!"));
+        if(!poll.getOpened()) return ResponseEntity.badRequest().body(new Message("Poll is closed!"));
 
         Vote newVote = voteRepository.save(new Vote(vote.getAnswer(), person, null, poll));
 
-        poll = pollRepository.findById(vote.getPoll_id()).orElse(null);
+        poll = pollRepository.findById(poll.getId()).orElse(null);
         PollStatistics pollStatistics = pollStatisticsRepository.findByPollId(poll.getId());
 
         if (pollStatistics != null) {
@@ -86,8 +88,39 @@ public class VoteController {
         }
 
         pollStatisticsRepository.save(pollStatistics);
-        //System.out.println(pollStatisticsRepository.findByPollId(poll.getId()));
-        return newVote;
+        return ResponseEntity.ok(newVote);
+    }
+
+    @Operation(summary = "Creates a new vote")
+    @PostMapping("/public/vote")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Vote created successfully",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Vote.class))}),
+            @ApiResponse(responseCode = "404", description = "Person, device or poll not found",
+                    content = @Content)
+    })
+    ResponseEntity publicCreate(@RequestBody VoteRequest vote) {
+        Poll poll = pollRepository.findById(vote.getPoll_id()).orElse(null);
+        if(poll == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("Poll not found!"));
+        if(!poll.getOpened()) return ResponseEntity.badRequest().body(new Message("Poll is closed!"));
+        if(!poll.getStatus()) return ResponseEntity.badRequest().body(new Message("Poll is private. Please, log in."));
+
+        Vote newVote = voteRepository.save(new Vote(vote.getAnswer(), null, null, poll));
+
+        poll = pollRepository.findById(poll.getId()).orElse(null);
+        PollStatistics pollStatistics = pollStatisticsRepository.findByPollId(poll.getId());
+
+        if (pollStatistics != null) {
+            pollStatistics.setTotalVotes(poll.getVotes().size());
+            pollStatistics.setYes(poll.countYes());
+            pollStatistics.setNo(poll.countNo());
+        } else {
+            pollStatistics = new PollStatistics(poll.getId(), poll.getQuestion(), poll.getVotes().size(), poll.countYes(), poll.countNo());
+        }
+
+        pollStatisticsRepository.save(pollStatistics);
+        return ResponseEntity.ok(newVote);
 
     }
 

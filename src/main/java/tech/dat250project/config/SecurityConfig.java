@@ -62,6 +62,7 @@ public class SecurityConfig {
                         "/register/device",
                         "/vote/device",
                         "/public/poll/*",
+                        "/public/vote/*",
                         "/swagger-resources",
                         "/swagger-resources/**",
                         "/swagger-ui.html",
