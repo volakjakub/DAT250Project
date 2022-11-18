@@ -118,11 +118,11 @@ public class PollController {
                 .map(poll -> {
                     poll.setQuestion(newPoll.getQuestion());
                     poll.setStatus(newPoll.getStatus());
-                    poll.setOpened(newPoll.getOpened());
                     if (poll.getOpened() != newPoll.getOpened()) {
                         dweetPoster.publish(newPoll);
                         sender.send(poll);
                     }
+                    poll.setOpened(newPoll.getOpened());
                     return pollRepository.save(poll);
                 })
                 .orElseGet(() -> pollRepository.save(newPoll));
