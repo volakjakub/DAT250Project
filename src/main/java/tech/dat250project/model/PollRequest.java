@@ -6,16 +6,14 @@ public class PollRequest {
     private String question;
     private Boolean opened;
     private Boolean status;
-    private String code;
     private Long person_id;
 
     public PollRequest() {}
 
-    public PollRequest(String question, Boolean opened, Boolean status, String code, Long person_id) {
+    public PollRequest(String question, Boolean opened, Boolean status, Long person_id) {
         this.question = question;
         this.opened = opened;
         this.status = status;
-        this.code = code;
         this.person_id = person_id;
     }
 
@@ -41,14 +39,6 @@ public class PollRequest {
 
     public void setStatus(Boolean status) {
         this.status = status;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
     }
 
     public Long getPerson_id() {

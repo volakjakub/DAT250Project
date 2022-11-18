@@ -72,14 +72,14 @@ public class Poll implements Serializable {
         return votes;
     }
 
-    public int countYes(){
+    public int countYes() {
         return this.getVotes().stream()
             .map(Vote::getAnswer)
             .filter(answer -> answer==true)
             .collect(Collectors.toList()).size();
     }
 
-    public int countNo(){
+    public int countNo() {
         return this.getVotes().stream()
             .map(Vote::getAnswer)
             .filter(answer -> answer==false)

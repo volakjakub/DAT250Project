@@ -3,6 +3,7 @@ package tech.dat250project.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -14,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import tech.dat250project.jwt.AuthEntryPointJwt;
 import tech.dat250project.jwt.AuthTokenFilter;
 import tech.dat250project.security.CustomUserDetailsService;
@@ -59,15 +61,15 @@ public class SecurityConfig {
                         "/register",
                         "/register/device",
                         "/vote/device",
-                        "/public/poll",
+                        "/public/poll/*",
                         "/swagger-resources",
                         "/swagger-resources/**",
                         "/swagger-ui.html",
                         "/api-docs/**",
                         "/swagger-ui/**").permitAll()
-                .anyRequest().authenticated()
-                .and().logout().permitAll();
+                .anyRequest().authenticated();
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.logout().logoutSuccessHandler((new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK)));
 
         //http.csrf().disable().authorizeRequests().anyRequest().permitAll();
         return http.build();

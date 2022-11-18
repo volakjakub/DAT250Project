@@ -32,14 +32,15 @@ public class AuthController {
     @Autowired
     private PersonRepository personRepository;
 
-    @Operation(summary = "Login in to the page")
+    @Operation(summary = "Info about logged user")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Login successful",
+            @ApiResponse(responseCode = "200", description = "Info about logged user",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = ResponseEntity.class))})})
-    @GetMapping("/login")
-    public ResponseEntity<HttpStatus> index() {
-        return new ResponseEntity<>(HttpStatus.OK);
+    @GetMapping("/info")
+    public ResponseEntity index() {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(personRepository.findByUsername(userDetails.getUsername()));
     }
 
     @Operation(summary = "Login in to the app")
@@ -71,9 +72,9 @@ public class AuthController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = ResponseEntity.class))})})
     @PostMapping("/logout")
-    public ResponseEntity<HttpStatus> logout() {
+    public ResponseEntity logout() {
         SecurityContextHolder.getContext().setAuthentication(null);
         ResponseCookie cookie = jwtUtils.getCleanJwtCookie();
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).build();
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new Message("Logout success."));
     }
 }
