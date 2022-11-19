@@ -22,6 +22,7 @@ import tech.dat250project.repository.PollRepository;
 import tech.dat250project.security.UserDetailsImpl;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -139,19 +140,25 @@ public class PollController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = Poll.class))})
     })
-    Poll update(@RequestBody Poll newPoll, @PathVariable Long id) {
+    ResponseEntity update(@RequestBody Poll newPoll, @PathVariable Long id) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Person person = personRepository.findByUsername(userDetails.getUsername()).orElse(null);
         return pollRepository.findById(id)
                 .map(poll -> {
-                    poll.setQuestion(newPoll.getQuestion());
-                    poll.setStatus(newPoll.getStatus());
-                    poll.setOpened(newPoll.getOpened());
-                    if (poll.getOpened() != newPoll.getOpened()) {
-                        dweetPoster.publish(newPoll);
-                        sender.send(poll);
+                    if(Objects.equals(person.getId(), poll.getAuthor().getId())) {
+                        if (poll.getOpened() != newPoll.getOpened()) {
+                            dweetPoster.publish(newPoll);
+                            sender.send(poll);
+                        }
+                        poll.setQuestion(newPoll.getQuestion());
+                        poll.setStatus(newPoll.getStatus());
+                        poll.setOpened(newPoll.getOpened());
+                        return ResponseEntity.ok(pollRepository.save(poll));
+                    } else {
+                        return ResponseEntity.badRequest().body(new Message("You are not author of this poll!"));
                     }
-                    return pollRepository.save(poll);
                 })
-                .orElseGet(() -> pollRepository.save(newPoll));
+                .orElseGet(() -> ResponseEntity.ok(pollRepository.save(new Poll(newPoll.getQuestion(), newPoll.getOpened(), newPoll.getStatus(), person))));
     }
 
     @Operation(summary = "Deletes a poll given its id")
@@ -162,8 +169,14 @@ public class PollController {
             @ApiResponse(responseCode = "404", description = "Poll not found",
                     content = @Content)
     })
-    void delete(@PathVariable Long id) {
+    ResponseEntity delete(@PathVariable Long id) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Person person = personRepository.findByUsername(userDetails.getUsername()).orElse(null);
+        Poll poll = pollRepository.findById(id).orElse(null);
+        if(poll == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("Poll not found!"));
+        if(!Objects.equals(person.getId(), poll.getAuthor().getId())) return ResponseEntity.badRequest().body(new Message("You are not author of this poll!"));
         pollRepository.deleteById(id);
+        return ResponseEntity.ok(new Message("Successfully deleted."));
     }
 
     @Operation(summary = "Attaches one or more devices to a poll given its id")
