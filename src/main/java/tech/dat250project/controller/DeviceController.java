@@ -6,10 +6,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tech.dat250project.model.Device;
+import tech.dat250project.model.DevicePoll;
+import tech.dat250project.repository.DevicePollRepository;
 import tech.dat250project.repository.DeviceRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,15 +21,22 @@ import java.util.Optional;
 public class DeviceController {
     @Autowired
     private DeviceRepository deviceRepository;
+    @Autowired
+    private DevicePollRepository devicePollRepository;
 
-    @Operation(summary = "Get all devices")
+    @Operation(summary = "Get all free devices")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found the devices",
+            @ApiResponse(responseCode = "200", description = "Found the free devices",
                     content = { @Content(mediaType = "application/json",
                             schema = @Schema(implementation = List.class)) })})
     @GetMapping("/device")
-    List<Device> all() {
-        return deviceRepository.findAll();
+    ResponseEntity all() {
+        List<Device> devices = deviceRepository.findAll();
+        List<DevicePoll> devicePolls = devicePollRepository.findAll();
+        for(DevicePoll devicePoll: devicePolls) {
+           devices.remove(devicePoll.getDevice());
+        }
+        return ResponseEntity.ok(devices);
     }
 
     @Operation(summary = "Get a device by its id")

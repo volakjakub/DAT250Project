@@ -179,6 +179,26 @@ public class PollController {
         return ResponseEntity.ok(new Message("Successfully deleted."));
     }
 
+    @Operation(summary = "Gets one or more devices to a poll given its id")
+    @GetMapping("/poll/{id}/device")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Device(s) of poll",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseEntity.class))}),
+            @ApiResponse(responseCode = "404", description = "Poll not found",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseEntity.class))})
+    })
+    ResponseEntity getDevices(@PathVariable Long id) {
+        Poll poll = pollRepository.findById(id).orElse(null);
+        if(poll != null) {
+            DevicePoll devicePoll = devicePollRepository.findByPollId(id);
+            if(devicePoll != null) return ResponseEntity.ok(devicePoll.getDevice());
+            return ResponseEntity.ok(null);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("Poll not found!"));
+    }
+
     @Operation(summary = "Attaches one or more devices to a poll given its id")
     @PostMapping("/poll/{id}/device")
     @ApiResponses(value = {
