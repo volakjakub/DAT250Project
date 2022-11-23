@@ -138,18 +138,20 @@ public class VoteController {
         if(device == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         DevicePoll devicePoll = devicePollRepository.findByDeviceId(device.getId());
 
-        if(devicePoll != null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if(devicePoll == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         Poll poll = devicePoll.getPoll();
 
         for(int i = 0; i < deviceVote.getRed(); i++) {
-            voteRepository.save(new Vote(false, null, device, devicePoll.getPoll()));
+            voteRepository.save(new Vote(false, null, device, poll));
         }
 
         for(int i = 0; i < deviceVote.getGreen(); i++) {
-            voteRepository.save(new Vote(true, null, device, devicePoll.getPoll()));
+            voteRepository.save(new Vote(true, null, device, poll));
         }
+        devicePollRepository.delete(devicePoll);
 
+        poll = pollRepository.findById(poll.getId()).orElse(null);
         PollStatistics pollStatistics = pollStatisticsRepository.findByPollId(poll.getId());
 
         if (pollStatistics != null) {
@@ -161,7 +163,6 @@ public class VoteController {
         }
         pollStatisticsRepository.save(pollStatistics);
 
-        devicePollRepository.delete(devicePoll);
         return new ResponseEntity<>(HttpStatus.OK);
 
     }

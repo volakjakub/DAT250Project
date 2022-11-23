@@ -21,6 +21,7 @@ import tech.dat250project.repository.PersonRepository;
 import tech.dat250project.repository.PollRepository;
 import tech.dat250project.security.UserDetailsImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -180,7 +181,7 @@ public class PollController {
     }
 
     @Operation(summary = "Gets one or more devices to a poll given its id")
-    @GetMapping("/poll/{id}/device")
+    @GetMapping("/poll/{code}/device")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Device(s) of poll",
                     content = {@Content(mediaType = "application/json",
@@ -189,44 +190,52 @@ public class PollController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = ResponseEntity.class))})
     })
-    ResponseEntity getDevices(@PathVariable Long id) {
-        Poll poll = pollRepository.findById(id).orElse(null);
+    ResponseEntity getDevices(@PathVariable String code) {
+        Poll poll = pollRepository.findByCode(code).orElse(null);
+        List<Device> devices = new ArrayList<>();
         if(poll != null) {
-            DevicePoll devicePoll = devicePollRepository.findByPollId(id);
-            if(devicePoll != null) return ResponseEntity.ok(devicePoll.getDevice());
-            return ResponseEntity.ok(null);
+            List<DevicePoll> devicePolls = devicePollRepository.findByPollId(poll.getId());
+            for(DevicePoll devicePoll:devicePolls) {
+                devices.add(devicePoll.getDevice());
+            }
+            return ResponseEntity.ok(devices);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("Poll not found!"));
     }
 
-    @Operation(summary = "Attaches one or more devices to a poll given its id")
-    @PostMapping("/poll/{id}/device")
+    @Operation(summary = "Attaches one device to a poll given its id")
+    @PostMapping("/poll/{code}/device")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Device(s) attached successfully",
+            @ApiResponse(responseCode = "200", description = "Device attached successfully",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = ResponseEntity.class))}),
-            @ApiResponse(responseCode = "404", description = "Poll not found",
+            @ApiResponse(responseCode = "404", description = "Poll or device not found",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = ResponseEntity.class))})
     })
-    ResponseEntity<HttpStatus> assignDevices(@RequestBody List<Integer> ids, @PathVariable Long id) {
-        Poll poll = pollRepository.findById(id).orElse(null);
+    ResponseEntity assignDevices(@RequestBody Long id, @PathVariable String code) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Person person = personRepository.findByUsername(userDetails.getUsername()).orElse(null);
+        Poll poll = pollRepository.findByCode(code).orElse(null);
         if(poll != null) {
-            Device device;
-            for (Integer deviceId : ids) {
-                device = deviceRepository.findById(deviceId.longValue()).orElse(null);
-                if(device != null) {
+            if(Objects.equals(poll.getAuthor().getId(), person.getId())) {
+                Device device;
+                device = deviceRepository.findById(id).orElse(null);
+                if (device != null) {
                     DevicePoll devicePoll = new DevicePoll(device, poll);
                     devicePollRepository.save(devicePoll);
+                    return ResponseEntity.ok(device);
                 }
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("Device not found!"));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Message("You are not author!"));
             }
-            return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("Poll not found!"));
     }
 
     @Operation(summary = "Deletes the link between a poll and a device given its id")
-    @DeleteMapping("/poll/{id}/device/{deviceId}")
+    @DeleteMapping("/poll/{code}/device/{deviceId}")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Device detached from poll successfully",
                     content = {@Content(mediaType = "application/json",
@@ -235,12 +244,22 @@ public class PollController {
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation = ResponseEntity.class))})
     })
-    ResponseEntity<HttpStatus> deleteDevice(@PathVariable Long deviceId, @PathVariable Long id) {
-        DevicePoll devicePoll = devicePollRepository.findByDeviceIdAndPollId(deviceId, id);
-        if(devicePoll != null) {
-            devicePollRepository.delete(devicePoll);
-            return new ResponseEntity<>(HttpStatus.OK);
+    ResponseEntity deleteDevice(@PathVariable Long deviceId, @PathVariable String code) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Person person = personRepository.findByUsername(userDetails.getUsername()).orElse(null);
+        Poll poll = pollRepository.findByCode(code).orElse(null);
+        if(poll != null) {
+            if(Objects.equals(poll.getAuthor().getId(), person.getId())) {
+                DevicePoll devicePoll = devicePollRepository.findByDeviceIdAndPollId(deviceId, poll.getId());
+                if (devicePoll != null) {
+                    devicePollRepository.delete(devicePoll);
+                    return ResponseEntity.ok(new Message("Device unlinked."));
+                }
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("Device is not linked to this poll!"));
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Message("You are not author!"));
+            }
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Message("Poll not found!"));
     }
 }
